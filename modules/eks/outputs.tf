@@ -1,3 +1,4 @@
+# modules/eks/outputs.tf
 output "cluster_endpoint" {
   description = "Endpoint for EKS control plane"
   value       = aws_eks_cluster.main.endpoint
@@ -26,6 +27,16 @@ output "cluster_certificate_authority_data" {
 output "cluster_name" {
   description = "The name/id of the EKS cluster"
   value       = aws_eks_cluster.main.name
+}
+
+output "cluster_oidc_issuer_url" {
+  description = "The URL on the EKS cluster OIDC Issuer"
+  value       = try(aws_eks_cluster.main.identity[0].oidc[0].issuer, "")
+}
+
+output "oidc_provider_arn" {
+  description = "ARN of the OIDC Provider for EKS"
+  value       = aws_iam_openid_connect_provider.oidc_provider.arn
 }
 
 output "node_groups" {

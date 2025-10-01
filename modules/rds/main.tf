@@ -4,11 +4,13 @@
 resource "random_password" "master" {
   length  = 16
   special = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
 # Store password in AWS Secrets Manager
 resource "aws_secretsmanager_secret" "db_password" {
   name        = "${var.identifier}-master-password"
+  recovery_window_in_days = 0  # Allows immediate deletion on destroy
   description = "Master password for ${var.identifier}"
   
   tags = var.tags

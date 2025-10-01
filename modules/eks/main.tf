@@ -1,3 +1,5 @@
+# modules/eks/main.tf
+# EKS Cluster IAM Role
 resource "aws_iam_role" "cluster" {
   name = "${var.cluster_name}-cluster-role"
 
@@ -141,5 +143,20 @@ resource "aws_security_group" "cluster_additional" {
 
   tags = merge(var.tags, {
     Name = "${var.cluster_name}-cluster-additional"
+  })
+}
+
+# OIDC Provider for EKS (required for IRSA - IAM Roles for Service Accounts)
+data "tls_certificate" "cluster" {
+  url = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "oidc_provider" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.cluster.certificates[0].sha1_fingerprint]
+  url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
+
+  tags = merge(var.tags, {
+    Name = "${var.cluster_name}-eks-oidc-provider"
   })
 }

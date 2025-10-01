@@ -152,3 +152,15 @@ module "ecr" {
   
   tags = local.common_tags
 }
+
+# EBS CSI Driver Module (required for PVC/PV support)
+module "ebs_csi_driver" {
+  source = "./modules/ebs-csi-driver"
+  
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  
+  tags = local.common_tags
+  
+  depends_on = [module.eks]
+}
