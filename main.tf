@@ -114,6 +114,24 @@ module "eks" {
   tags = local.common_tags
 }
 
+# External Secrets Module
+module "external_secrets" {
+  source = "./modules/external-secrets"
+  
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  namespace         = "kafka"
+  
+  secrets_arns = [
+    module.rds.db_password_secret_arn,
+    # Add other secret ARNs here if needed
+  ]
+  
+  tags = local.common_tags
+  
+  depends_on = [module.eks]
+}
+
 # RDS Module
 module "rds" {
   source = "./modules/rds"
